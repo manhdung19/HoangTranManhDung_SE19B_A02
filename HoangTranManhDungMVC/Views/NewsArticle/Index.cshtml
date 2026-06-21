@@ -1,0 +1,122 @@
+﻿@model IEnumerable<FUNewsManagement.DAL.Models.NewsArticle>
+
+@{
+    ViewData["Title"] = "News Article Management";
+}
+
+<div class="container mt-4">
+    <h2>Quản lý Bài viết (News Article)</h2>
+    <hr />
+
+    <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-primary" onclick="openCreatePopup()">Create New Article</button>
+
+        <form asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control me-2" placeholder="Tìm kiếm tiêu đề..." style="width: 250px;" />
+            <button type="submit" class="btn btn-secondary">Search</button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Clear</a>
+        </form>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>Danh mục</th>
+                <th>Người tạo</th>
+                <th>Thẻ (Tags)</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NewsArticleId</td>
+                    <td>@item.NewsTitle</td>
+                    <td>@(item.Category?.CategoryName ?? "N/A")</td>
+                    <td>@(item.CreatedBy?.AccountName ?? "N/A")</td>
+                    <td>
+                        @if (item.Tags != null && item.Tags.Any())
+                        {
+                            @foreach (var t in item.Tags)
+                            {
+                                <span class="badge bg-info text-dark me-1">@t.TagName</span>
+                            }
+                        }
+                    </td>
+                    <td>@(item.NewsStatus == true ? "Active" : "Inactive")</td>
+                    <td>
+                        <!-- ID kiểu String nên cần có dấu ngoặc kép bọc lại '' -->
+                        <button class="btn btn-warning btn-sm" onclick="openEditPopup('@item.NewsArticleId')">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteArticle('@item.NewsArticleId')">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="articleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="modal-content">
+                <!-- Form HTML sẽ load vào đây -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCreatePopup() {
+            $.get('@Url.Action("Create", "NewsArticle")', function (data) {
+                $('#modal-content').html(data);
+                $('#articleModal').modal('show');
+            });
+        }
+
+        function submitCreateForm(form) {
+            $.post(form.action, $(form).serialize(), function (response) {
+                if (response.success) {
+                    $('#articleModal').modal('hide');
+                    location.reload();
+                } else {
+                    $('#modal-content').html(response);
+                }
+            });
+            return false;
+        }
+
+        function openEditPopup(id) {
+            $.get('@Url.Action("Edit", "NewsArticle")/' + id, function (data) {
+                $('#modal-content').html(data);
+                $('#articleModal').modal('show');
+            });
+        }
+
+        function submitEditForm(form) {
+            $.post(form.action, $(form).serialize(), function (response) {
+                if (response.success) {
+                    $('#articleModal').modal('hide');
+                    location.reload();
+                } else {
+                    $('#modal-content').html(response);
+                }
+            });
+            return false;
+        }
+
+        function deleteArticle(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa bài viết này?")) {
+                $.post('@Url.Action("Delete", "NewsArticle")/' + id, function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        alert("Xóa thất bại!");
+                    }
+                });
+            }
+        }
+    </script>
+}

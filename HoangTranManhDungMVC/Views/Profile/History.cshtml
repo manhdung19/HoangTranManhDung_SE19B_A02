@@ -1,0 +1,50 @@
+﻿@model IEnumerable<FUNewsManagement.DAL.Models.NewsArticle>
+
+@{
+    ViewData["Title"] = "Lịch sử bài viết";
+}
+
+<div class="container mt-4">
+    <h2>Lịch sử các bài viết của tôi</h2>
+    <hr />
+    <a asp-action="Index" class="btn btn-secondary mb-3">Quay lại Profile</a>
+
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề (Title)</th>
+                <th>Danh mục (Category)</th>
+                <th>Ngày tạo</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="5" class="text-center">Bạn chưa tạo bài viết nào. Hãy ra ngoài đăng bài nhé!</td>
+                </tr>
+            }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NewsArticleId</td>
+                    <td>@item.NewsTitle</td>
+                    <td>@(item.Category?.CategoryName ?? "N/A")</td>
+                    <td>@item.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (item.NewsStatus == true)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

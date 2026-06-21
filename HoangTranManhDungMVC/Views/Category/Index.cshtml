@@ -1,0 +1,110 @@
+﻿@model IEnumerable<FUNewsManagement.DAL.Models.Category>
+
+@{
+    ViewData["Title"] = "Category Management";
+}
+
+<div class="container mt-4">
+    <h2>Quản lý Danh mục (Category)</h2>
+    <hr />
+
+    <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-primary" onclick="openCreatePopup()">Create New Category</button>
+
+        <form asp-action="Index" method="get" class="d-flex">
+            <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control me-2" placeholder="Tìm kiếm tên danh mục..." style="width: 250px;" />
+            <button type="submit" class="btn btn-secondary">Search</button>
+            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Clear</a>
+        </form>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.CategoryId</td>
+                    <td>@item.CategoryName</td>
+                    <td>@item.CategoryDesciption</td>
+                    <td>@(item.IsActive == true ? "Active" : "Inactive")</td>
+                    <td>
+                        <button class="btn btn-warning btn-sm" onclick="openEditPopup(@item.CategoryId)">Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCategory(@item.CategoryId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="modal-content">
+                <!-- Form HTML sẽ được load vào đây -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCreatePopup() {
+            $.get('@Url.Action("Create", "Category")', function (data) {
+                $('#modal-content').html(data);
+                $('#categoryModal').modal('show');
+            });
+        }
+
+        function submitCreateForm(form) {
+            $.post(form.action, $(form).serialize(), function (response) {
+                if (response.success) {
+                    $('#categoryModal').modal('hide');
+                    location.reload();
+                } else {
+                    $('#modal-content').html(response);
+                }
+            });
+            return false;
+        }
+
+        function openEditPopup(id) {
+            $.get('@Url.Action("Edit", "Category")/' + id, function (data) {
+                $('#modal-content').html(data);
+                $('#categoryModal').modal('show');
+            });
+        }
+
+        function submitEditForm(form) {
+            $.post(form.action, $(form).serialize(), function (response) {
+                if (response.success) {
+                    $('#categoryModal').modal('hide');
+                    location.reload();
+                } else {
+                    $('#modal-content').html(response);
+                }
+            });
+            return false;
+        }
+
+        function deleteCategory(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) {
+                $.post('@Url.Action("Delete", "Category")/' + id, function (response) {
+                    if (response.success) {
+                        location.reload();
+                    } else {
+                        // Hiển thị thông báo lỗi từ Controller (ví dụ: đang có bài viết dùng danh mục này)
+                        alert(response.message);
+                    }
+                });
+            }
+        }
+    </script>
+}
