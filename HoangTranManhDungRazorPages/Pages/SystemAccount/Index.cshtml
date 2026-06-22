@@ -1,0 +1,143 @@
+﻿@page
+@model HoangTranManhDungRazorPages.Pages.SystemAccount.IndexModel
+
+@{
+    ViewData["Title"] = "Quản lý Tài Khoản";
+}
+
+<div class="container mt-4">
+    <h2>Account Management</h2>
+    <hr />
+
+    <div class="d-flex justify-content-between mb-3">
+        <!-- Nút Create -->
+        <button class="btn btn-primary fw-bold shadow-sm" onclick="openCreatePopup()">+ Create New Account</button>
+
+        <!-- Form Tìm kiếm -->
+        <form method="get" class="d-flex">
+            <input type="text" name="searchString" value="@Request.Query["searchString"]" class="form-control me-2" placeholder="Tìm theo Tên hoặc Email..." style="width: 250px;" />
+            <button type="submit" class="btn btn-secondary">Search</button>
+            <a asp-page="./Index" class="btn btn-outline-secondary ms-2">Clear</a>
+        </form>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Email</th>
+                <th>Vai trò (Role)</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Accounts)
+            {
+                <tr>
+                    <td>@item.AccountId</td>
+                    <td>@item.AccountName</td>
+                    <td>@item.AccountEmail</td>
+                    <td>
+                        @(item.AccountRole == 1 ? "Staff" : item.AccountRole == 2 ? "Lecturer" : "Admin")
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-sm fw-bold" onclick="openEditPopup(@item.AccountId)">Edit</button>
+                        <button class="btn btn-danger btn-sm fw-bold" onclick="deleteAccount(@item.AccountId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Khung Modal dùng chung cho Create/Edit -->
+    <div class="modal fade" id="accountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="modal-content">
+                <!-- Nội dung form sẽ được AJAX đút vào đây -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lệnh sinh ra Token bảo mật bắt buộc của Razor Pages -->
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        // Lấy mã Token bảo mật để gửi kèm AJAX (Bắt buộc trong Razor Pages)
+        var token = $('input[name="__RequestVerificationToken"]').val();
+
+        // 1. Mở form Create
+        function openCreatePopup() {
+            $.get('?handler=CreatePartial', function (data) {
+                $('#modal-content').html(data);
+                $('#accountModal').modal('show');
+            });
+        }
+
+        // 2. Gửi dữ liệu Create
+        function submitCreateForm(form) {
+            $.ajax({
+                type: 'POST',
+                url: '?handler=Create',
+                data: $(form).serialize(),
+                headers: { "RequestVerificationToken": token }, // Kẹp Token vào header
+                success: function (response) {
+                    if (response.success) {
+                        $('#accountModal').modal('hide');
+                        location.reload(); // Tải lại trang khi thành công
+                    } else {
+                        $('#modal-content').html(response);
+                    }
+                }
+            });
+            return false;
+        }
+
+        // 3. Mở form Edit
+        function openEditPopup(id) {
+            $.get('?handler=EditPartial&id=' + id, function (data) {
+                $('#modal-content').html(data);
+                $('#accountModal').modal('show');
+            });
+        }
+
+        // 4. Gửi dữ liệu Edit
+        function submitEditForm(form) {
+            $.ajax({
+                type: 'POST',
+                url: '?handler=Edit',
+                data: $(form).serialize(),
+                headers: { "RequestVerificationToken": token }, // Kẹp Token vào header
+                success: function (response) {
+                    if (response.success) {
+                        $('#accountModal').modal('hide');
+                        location.reload();
+                    } else {
+                        $('#modal-content').html(response);
+                    }
+                }
+            });
+            return false;
+        }
+
+        // 5. Xóa tài khoản
+        function deleteAccount(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác.")) {
+                $.ajax({
+                    type: 'POST',
+                    url: '?handler=Delete&id=' + id,
+                    headers: { "RequestVerificationToken": token }, // Kẹp Token vào header
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert("Lỗi khi xóa!");
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

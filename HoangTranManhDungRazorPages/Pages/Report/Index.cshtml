@@ -1,0 +1,64 @@
+@page
+@model HoangTranManhDungRazorPages.Pages.Report.IndexModel
+@{
+    ViewData["Title"] = "Báo Cáo Thống Kê Bài Viết";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold">Báo Cáo Thống Kê Bài Viết</h2>
+    <hr />
+
+    <form method="get" class="row g-3 mb-4 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Từ ngày (StartDate)</label>
+            <input type="date" asp-for="StartDate" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Đến ngày (EndDate)</label>
+            <input type="date" asp-for="EndDate" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary fw-bold">Lọc Dữ Liệu</button>
+            <a asp-page="./Index" class="btn btn-outline-secondary fw-bold">Xóa Bộ Lọc</a>
+        </div>
+    </form>
+
+    <table class="table table-bordered table-striped shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã bài viết</th>
+                <th>Tiêu đề (Title)</th>
+                <th>Người tạo</th>
+                <th>Ngày tạo</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.ReportData.Any())
+            {
+                <tr>
+                    <td colspan="5" class="text-center">Không có bài viết nào trong khoảng thời gian này.</td>
+                </tr>
+            }
+            @foreach (var item in Model.ReportData)
+            {
+                <tr>
+                    <td>@item.NewsArticleId</td>
+                    <td>@item.NewsTitle</td>
+                    <td>@(item.CreatedBy?.AccountName ?? "N/A")</td>
+                    <td>@item.CreatedDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (item.NewsStatus == true)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactive</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

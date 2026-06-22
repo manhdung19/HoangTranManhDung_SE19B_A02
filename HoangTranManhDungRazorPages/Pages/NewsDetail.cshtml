@@ -1,0 +1,55 @@
+@page "{id}"
+@model HoangTranManhDungRazorPages.Pages.NewsDetailModel
+@{
+    ViewData["Title"] = Model.NewsArticle.NewsTitle;
+}
+
+<div class="container mt-4 mb-5">
+    <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-header bg-dark text-white p-4">
+            <h1 class="card-title fw-bold mb-1">@Model.NewsArticle.NewsTitle</h1>
+            <h5 class="text-warning">@Model.NewsArticle.Headline</h5>
+        </div>
+        <div class="card-body p-5 bg-light">
+            <div class="d-flex justify-content-between text-muted mb-4 pb-3 border-bottom">
+                <div>
+                    <span class="fw-bold me-3">
+                        <i class="bi bi-person-circle"></i> Người viết: @(Model.NewsArticle.CreatedBy?.AccountName ?? "Ẩn danh")
+                    </span>
+                    <span class="fw-bold">
+                        <i class="bi bi-folder"></i> Danh mục: @(Model.NewsArticle.Category?.CategoryName ?? "Chưa phân loại")
+                    </span>
+                </div>
+                <div>
+                    <span class="fw-bold">
+                        <i class="bi bi-calendar3"></i> Đăng ngày: @Model.NewsArticle.CreatedDate?.ToString("dd/MM/yyyy HH:mm")
+                    </span>
+                </div>
+            </div>
+
+            <div class="news-content fs-5" style="line-height: 1.8; text-align: justify; white-space: pre-line;">
+                @Model.NewsArticle.NewsContent
+            </div>
+            
+            <div class="mt-5 pt-3 border-top">
+                <span class="fw-bold text-secondary me-2">🏷️ Tags:</span>
+                @if (Model.NewsArticle.Tags != null && Model.NewsArticle.Tags.Any())
+                {
+                    foreach (var tag in Model.NewsArticle.Tags)
+                    {
+                        <span class="badge bg-secondary me-1">@tag.TagName</span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">Không có thẻ nào.</span>
+                }
+            </div>
+        </div>
+        <div class="card-footer bg-white p-4 text-center">
+            <button onclick="history.back()" class="btn btn-outline-primary fw-bold px-4 py-2">
+                ⬅ Quay lại trang trước
+            </button>
+        </div>
+    </div>
+</div>

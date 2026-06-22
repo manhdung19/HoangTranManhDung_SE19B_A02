@@ -1,59 +1,66 @@
-# FUNews Management System
+# FUNewsManagementSystem - Assignment 2
 
-**Student Name:** Hoang Tran Manh Dung
-**Class:** SE19B
-**Assignment:** Assignment 01 - PRN222
+Đây là hệ thống quản lý tin tức **(News Management System)** được xây dựng dựa trên kiến trúc **ASP.NET Core Razor Pages**, kết hợp giao tiếp thời gian thực với **SignalR**. Dự án tuân thủ nghiêm ngặt mô hình 3 lớp (3-Tier Architecture) và các pattern Design cơ bản (Repository, Singleton).
 
-## Overview
-FUNews Management System is an ASP.NET Core MVC web application designed to manage news articles, categories, and system accounts. The project is built following a strict **3-Tier Architecture** (DAO -> Repository -> Service) to ensure separation of concerns and maintainability.
+Dự án thuộc khuôn khổ bài tập **Assignment 2 - môn PRN222**.
 
-## Technology Stack
-- **Framework:** ASP.NET Core 6.0/8.0 MVC
-- **ORM:** Entity Framework Core (Database First)
-- **Database:** Microsoft SQL Server (`FUNewsManagement`)
-- **Frontend:** Bootstrap 5, jQuery, AJAX
-- **Authentication:** ASP.NET Core Session
+## 📌 Tính năng nổi bật đã hoàn thành (100% Khớp yêu cầu Ass2)
 
-## Architecture
-The project is divided into the following layers:
-1. **FUNewsManagement.DAL (Data Access Layer):**
-   - Contains EF Core generated Models.
-   - Contains DAOs (Data Access Objects) implemented using the **Singleton Design Pattern**.
-   - Handles all direct database queries.
+1. **Công nghệ cốt lõi:**
+   - **ASP.NET Core Razor Pages** thay vì MVC.
+   - Database truy xuất thông qua **Entity Framework Core** (EF Core).
+   - **SignalR** cho tính năng Real-time Notification.
+   
+2. **Luồng phân quyền và tính năng (Role Authorization):**
+   - **Guest (Chưa đăng nhập):** Xem danh sách các bài viết đang ở trạng thái Active.
+   - **Lecturer (Role = 2):** Xem tin tức nội bộ.
+   - **Admin (Role = 0):** Quản lý tài khoản (CRUD, Search), xem Thống kê Báo cáo (lọc theo ngày StartDate - EndDate).
+   - **Staff (Role = 1):** 
+     - Quản lý Danh mục (CRUD, chặn xóa nếu danh mục đang được sử dụng).
+     - Quản lý Bài viết & Tags (CRUD).
+     - Quản lý thông tin hồ sơ cá nhân và Lịch sử bài viết.
 
-2. **FUNewsManagement.BLL (Business Logic Layer):**
-   - Contains Repositories and Services (Interfaces & Implementations).
-   - Serves as the bridge between the MVC Controller and the DAO.
+3. **Giao diện & UX chuẩn yêu cầu:**
+   - Khởi động mặc định vào màn hình **Login**.
+   - Các thao tác Create & Update (Thêm/Sửa) hoàn toàn sử dụng **Pop-up Dialog (Modal)** kết hợp AJAX ngầm.
+   - Thao tác Delete (Xóa) luôn có hộp thoại xác nhận **Confirmation**.
+   
+4. **SignalR Real-time Notification:**
+   - Bất cứ khi nào Staff đăng bài mới hoặc sửa đổi trạng thái bài viết, một **Toast Notification** (thông báo nổi) sẽ bật lên ở góc màn hình của các Admin/Lecturer đang online.
+   - Người dùng có thể click trực tiếp vào Toast để tự động làm mới trang và xem bài viết mới nhất mà không cần F5 thủ công.
 
-3. **HoangTranManhDungMVC (Presentation Layer):**
-   - ASP.NET Core MVC application.
-   - Contains Controllers, Views, and configures Dependency Injection in `Program.cs`.
+---
 
-## Features by Role
-The application uses session-based authorization to divide features across 4 types of users:
+## 🚀 Hướng dẫn cài đặt và chạy dự án
 
-### 1. Admin (Role = 0)
-- **Account Management:** Full CRUD operations and Search functionality for `SystemAccount`. 
-- **Report Statistic:** View a report of news articles filtered by `StartDate` and `EndDate`, sorted descending by date.
-- *Note: Create and Edit actions use Bootstrap Popups (AJAX).*
+### 1. Yêu cầu môi trường
+- **IDE:** Visual Studio 2022 (hoặc VS Code).
+- **Framework:** .NET 8.0 SDK.
+- **Database:** Microsoft SQL Server (SSMS).
 
-### 2. Staff (Role = 1)
-- **Category Management:** Full CRUD operations and Search functionality for `Category`. A category cannot be deleted if it is already attached to a news article.
-- **News Article Management:** Full CRUD operations and Search functionality for `NewsArticle`. Staff can assign multiple Tags to an article.
-- **Profile Management:** Update personal information.
-- **News History:** View the list of news articles created by themselves.
-- *Note: Create and Edit actions use Bootstrap Popups (AJAX).*
+### 2. Cài đặt Cơ sở dữ liệu (Database)
+1. Mở SQL Server Management Studio (SSMS).
+2. Chạy file script `FUNewsManagement.sql` (nằm trong thư mục gốc hoặc lấy từ Assignment 1) để tự động khởi tạo Database và dữ liệu mẫu.
+3. Mở file cấu hình `appsettings.json` trong project **HoangTranManhDungRazorPages** và điều chỉnh chuỗi kết nối (Connection String) sao cho khớp với tài khoản SA/Windows Authentication của máy tính bạn.
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=YOUR_SERVER_NAME;Database=FUNewsManagement;Trusted_Connection=True;Encrypt=False;"
+   }
+   ```
 
-### 3. Lecturer (Role = 2)
-- Can log in and view the list of all **Active** news articles.
+### 3. Build và Chạy dự án
+1. Mở Solution `HoangTranManhDung_SE19B_A02.sln` bằng Visual Studio.
+2. Thiết lập project **HoangTranManhDungRazorPages** làm *Startup Project*.
+3. Nhấn `F5` hoặc `Ctrl + F5` để chạy dự án. Mặc định ứng dụng sẽ tự động mở trang `Login`.
 
-### 4. Public User (Guest)
-- No login required. Can view the list of all **Active** news articles directly from the Home page.
+### 4. Tài khoản Demo (Test Accounts)
+Bạn có thể sử dụng các tài khoản sau để test luồng phân quyền:
 
-## How to Run
-1. Update the `appsettings.json` in the MVC project with your local SQL Server connection string.
-2. Build the solution to restore all NuGet packages.
-3. Run the MVC project. The default route will direct to the Login window (`Auth/Login`) as per the assignment requirements.
-4. Log in to access Role-specific features, or navigate to the Public News page from the navigation menu to view articles as a guest.
-   - Admin account is configured in `appsettings.json`.
-   - Other accounts (Staff, Lecturer) are located in the `SystemAccount` table of the database.
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin@FUNewsManagementSystem.org` | `@@abc123@@` |
+| **Staff** | `EmmaWilliam@FUNewsManagement.org` | `@1` |
+| **Lecturer** | `IsabellaDavid@FUNewsManagement.org` | `@1` |
+
+---
+*Dự án được xây dựng và tối ưu hoàn thiện bởi sinh viên: Hoang Tran Manh Dung - SE19B.*

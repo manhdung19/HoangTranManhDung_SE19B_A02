@@ -1,0 +1,135 @@
+﻿@page
+@model HoangTranManhDungRazorPages.Pages.Category.IndexModel
+
+@{
+    ViewData["Title"] = "Quản lý Danh mục";
+}
+
+<div class="container mt-4">
+    <h2 class="text-info fw-bold">Quản lý Danh mục (Staff)</h2>
+    <hr />
+
+    <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-primary fw-bold shadow-sm" onclick="openCreatePopup()">+ Create New Category</button>
+
+        <form method="get" class="d-flex">
+            <input type="text" name="searchString" value="@Request.Query["searchString"]" class="form-control me-2" placeholder="Tìm kiếm tên danh mục..." style="width: 250px;" />
+            <button type="submit" class="btn btn-secondary">Search</button>
+            <a asp-page="./Index" class="btn btn-outline-secondary ms-2">Clear</a>
+        </form>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tên danh mục</th>
+                <th>Mô tả</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Categories)
+            {
+                <tr>
+                    <td>@item.CategoryId</td>
+                    <td class="fw-bold">@item.CategoryName</td>
+                    <td>@item.CategoryDesciption</td>
+                    <td>
+                        <span class="badge @(item.IsActive == true ? "bg-success" : "bg-danger") p-2">
+                            @(item.IsActive == true ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-warning btn-sm fw-bold" onclick="openEditPopup(@item.CategoryId)">Edit</button>
+                        <button class="btn btn-danger btn-sm fw-bold" onclick="deleteCategory(@item.CategoryId)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- Khung chứa Popup -->
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="modal-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Token bảo mật -->
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        var token = $('input[name="__RequestVerificationToken"]').val();
+
+        function openCreatePopup() {
+            $.get('?handler=CreatePartial', function (data) {
+                $('#modal-content').html(data);
+                $('#categoryModal').modal('show');
+            });
+        }
+
+        function submitCreateForm(form) {
+            $.ajax({
+                type: 'POST',
+                url: '?handler=Create',
+                data: $(form).serialize(),
+                headers: { "RequestVerificationToken": token },
+                success: function (response) {
+                    if (response.success) {
+                        $('#categoryModal').modal('hide');
+                        location.reload();
+                    } else {
+                        $('#modal-content').html(response);
+                    }
+                }
+            });
+            return false;
+        }
+
+        function openEditPopup(id) {
+            $.get('?handler=EditPartial&id=' + id, function (data) {
+                $('#modal-content').html(data);
+                $('#categoryModal').modal('show');
+            });
+        }
+
+        function submitEditForm(form) {
+            $.ajax({
+                type: 'POST',
+                url: '?handler=Edit',
+                data: $(form).serialize(),
+                headers: { "RequestVerificationToken": token },
+                success: function (response) {
+                    if (response.success) {
+                        $('#categoryModal').modal('hide');
+                        location.reload();
+                    } else {
+                        $('#modal-content').html(response);
+                    }
+                }
+            });
+            return false;
+        }
+
+        function deleteCategory(id) {
+            if (confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) {
+                $.ajax({
+                    type: 'POST',
+                    url: '?handler=Delete&id=' + id,
+                    headers: { "RequestVerificationToken": token },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert(response.message || "Lỗi khi xóa!");
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

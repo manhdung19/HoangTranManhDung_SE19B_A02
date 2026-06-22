@@ -1,0 +1,47 @@
+@page
+@model HoangTranManhDungRazorPages.Pages.HomeModel
+@{
+    ViewData["Title"] = "Trang Chủ - Tin tức Public";
+}
+
+<div class="text-center mb-4 mt-3">
+    <h1 class="display-4 fw-bold text-primary">TIN TỨC CÔNG KHAI</h1>
+    
+</div>
+
+<div class="row">
+    @if (Model.ActiveNews != null && Model.ActiveNews.Count > 0)
+    {
+        foreach (var news in Model.ActiveNews)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm border-0 border-start border-4 border-primary bg-light">
+                    <div class="card-body">
+                        <h4 class="card-title fw-bold text-dark">@news.NewsTitle</h4>
+                        <h6 class="card-subtitle mb-2 text-danger">@news.Headline</h6>
+                        <p class="card-text">
+                            <small class="text-secondary fw-bold">
+                                📅 Ngày đăng: @news.CreatedDate?.ToString("dd/MM/yyyy") |
+                                📂 Danh mục: @(news.Category?.CategoryName ?? "Không rõ")
+                            </small>
+                        </p>
+                        <p class="card-text text-truncate" style="max-height: 4rem;">
+                            @news.NewsContent
+                        </p>
+                        <div class="mt-3 text-end">
+                            <a asp-page="/NewsDetail" asp-route-id="@news.NewsArticleId" class="btn btn-primary btn-sm fw-bold px-3 rounded-pill shadow-sm">
+                                Xem chi tiết &raquo;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center text-muted mt-5">
+            <h4>Hiện tại chưa có tin tức nào đang hoạt động.</h4>
+        </div>
+    }
+</div>
